@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TommySir 英语数学 AI 练习应用程序</title>
+  <link rel="stylesheet" href="/style.css" />
+  <script>console.log("🧭 英语数学 index.html loaded");</script>
+  <style>
+    .exam-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .exam-btn {
+      background: #003366;
+      color: white;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      width: 180px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+    .exam-btn:hover {
+      background: #0055aa;
+    }
+    .school-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+    .school-logo {
+      height: 50px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Main App -->
+  <header>
+    <div class="school-header">
+      <img src="/exam/math/logo.png" alt="School Logo" class="school-logo" />
+      <h1>TommySir 的 英语数学 AI 练习应用程序</h1>
+    </div>
+  </header>
+
+  <main>
+    <section class="selectors">
+      <h2>选择英语数学练习题：</h2>
+      <div class="exam-grid">
+        <div class="exam-btn" onclick="setExam('worksheet-a')">📗 练习题 A</div>
+        <div class="exam-btn" onclick="setExam('worksheet-b')">📗 练习题 B</div>
+        <div class="exam-btn" onclick="setExam('worksheet-c')">📗 练习题 C</div>
+      </div>
+    </section>
+
+    <section class="question">
+      <h2>问题查询</h2>
+      <textarea id="questionInput" placeholder="请输入您的问题（例如 Q1 或 Q2）..."></textarea>
+      <div>
+        <button onclick="submitQuestion()">提交问题</button>
+        <button id="micBtn" style="margin-left: 10px;">🎤 语音提问</button>
+      </div>
+    </section>
+
+    <section class="response">
+      <h2>回答结果</h2>
+      <div id="responseBox">提交问题后将显示答案</div>
+      <div style="margin-top: 10px;">
+        <button id="ttsBtn">🔊 听英文与中文回答</button>
+        <button id="stopTTSBtn" style="margin-left: 10px;">🔇 停止播放</button>
+      </div>
+    </section>
+
+    <section class="history">
+      <h2>历史对话</h2>
+      <ul id="historyList"></ul>
+      <button onclick="clearHistory()" style="margin-top:10px;">🧹 清除历史</button>
+    </section>
+  </main>
+
+  <script src="/script.js"></script>
+</body>
+</html>
