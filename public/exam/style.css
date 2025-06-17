@@ -80,6 +80,8 @@ button:hover {
   min-height: 80px;
   max-width: 100%;
   font-size: 16
+}
+
 .admin-container {
   padding: 40px;
   max-width: 960px;
@@ -119,4 +121,21 @@ button:hover {
   border: none;
   border-radius: 6px;
   cursor: pointer;
+}
+
+/* ✅ Injected: School Header & Logo Styling */
+.school-logo {
+  height: 100px;
+}
+
+.school-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.school-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
 }
