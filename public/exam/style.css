@@ -124,10 +124,10 @@ button:hover {
 }
 
 /* ✅ Injected: School Header & Logo Styling */
-.school-logo {
+..school-logo {
   height: 100px;
+  transform: scale(1.5); /* Visually scales the image */
 }
-
 .school-header {
   display: flex;
   align-items: center;
