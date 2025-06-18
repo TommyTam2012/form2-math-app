@@ -66,13 +66,12 @@ async function submitQuestion() {
   translationBox.textContent = "";
 
   const maxPages = 13;
-  const url = `/exam/math/${currentExamId}page${i}.png`; // ✅ correct
   const imageMessages = [
     { type: "text", text: question }
   ];
 
   for (let i = 1; i <= maxPages; i++) {
-    const url = `${baseUrl}${i}.png`;
+    const url = `/exam/math/${currentExamId}page${i}.png`;
     try {
       const res = await fetch(url, { method: "HEAD" });
       if (res.ok) {
