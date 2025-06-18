@@ -10,40 +10,49 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { question, officialAnswer } = req.body;
+    const { examId, page, officialAnswer } = req.body;
 
-    if (!question || !officialAnswer) {
-      return res.status(400).json({ error: "Missing question or official answer." });
+    if (!examId || !page || !officialAnswer) {
+      return res.status(400).json({ error: "Missing examId, page, or officialAnswer." });
     }
 
-    // Step 1: GPT explains the answer
-    const explanationResponse = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: `
+    const imageUrl = `${process.env.BASE_URL}/exam/math/${examId}page${page}.png`;
+    const answerUrl = `${process.env.BASE_URL}/exam/math/${examId}answers.png`;
+
+    const systemPrompt = `
 You are a Form 2 Mathematics tutor in Hong Kong.
 
+You will be given:
+1. An image of a student's math question (from a scanned worksheet)
+2. The official answer for that question
+
 Your job:
-1. Read the student's math question.
-2. Try to calculate your own answer.
+1. Read and understand the math question in the image.
+2. Solve it on your own.
 3. Compare your answer with the official answer provided.
-4. If they match, explain why the official answer is correct.
-5. If they differ, explain the mistake and teach the correct method.
-6. Use simple English, suitable for 13–14 year old students.
-          `.trim()
-        },
+4. If they match, explain why the official answer is correct using simple, step-by-step logic.
+5. If they differ, explain the correct method and identify the error in the official answer (if any).
+6. Use simple English suitable for a 13–14 year old student.
+    `.trim();
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemPrompt },
         {
           role: "user",
-          content: `Question: ${question}\nOfficial Answer: ${officialAnswer}`
+          content: [
+            { type: "text", text: `This is page ${page} of exam ${examId}. Please analyze the question shown.` },
+            { type: "image_url", image_url: { url: imageUrl } },
+            { type: "text", text: `Official Answer: ${officialAnswer}` },
+            { type: "image_url", image_url: { url: answerUrl } }
+          ]
         }
       ]
     });
 
-    const english = explanationResponse.choices[0]?.message?.content?.trim() || "";
+    const english = response.choices[0]?.message?.content?.trim() || "";
 
-    // Step 2: Translate to Simplified Chinese
     const chineseResponse = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -63,7 +72,7 @@ Your job:
     return res.status(200).json({ response: english, translated });
 
   } catch (error) {
-    console.error("GPT error:", error);
+    console.error("GPT Vision error:", error);
     return res.status(500).json({
       error: "Internal server error",
       detail: error.message || "Unknown GPT error"
