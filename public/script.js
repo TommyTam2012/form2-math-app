@@ -1,34 +1,5 @@
 console.log("🟢 script.js loaded successfully");
 
-// ✅ Logging to Upstash
-async function logToUpstash(name, email, action = "login") {
-  const hkTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Hong_Kong" });
-  const logKey = `log:${Date.now()}`;
-  const logValue = JSON.stringify({ name, email, action, time: hkTime });
-
-  const url = "https://firm-imp-16671.upstash.io/set/" + logKey;
-
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer AUEfAAIjcDFkMTBkNTFmYmIzM2I0ZGQwYTUzODk5NDI2YmZkNTMwZHAxMA",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(logValue)
-    });
-
-    if (res.ok) {
-      console.log("✅ Log stored in Upstash");
-    } else {
-      const text = await res.text();
-      throw new Error(`❌ Failed to log: ${text}`);
-    }
-  } catch (err) {
-    console.error("❌ Network error:", err);
-  }
-}
-
 const responseBox = document.getElementById("responseBox");
 const questionInput = document.getElementById("questionInput");
 const historyList = document.getElementById("historyList");
@@ -68,10 +39,10 @@ async function submitQuestion() {
   const imageMessages = [{ type: "text", text: question }];
   let missingCount = 0;
   const maxMissing = 3;
-  const maxAttempts = 10;  // ⛔ Limit to first 10 pages only
+  const maxAttempts = 10;
 
   for (let i = 1; i <= maxAttempts; i++) {
-    const url = `/exam/math/${currentExamId}page${i}.png`;
+    const url = `${window.location.origin}/exam/math/${currentExamId}page${i}.png`; // ✅ Full URL for GPT
     try {
       const res = await fetch(url, { method: "HEAD" });
       if (res.ok) {
