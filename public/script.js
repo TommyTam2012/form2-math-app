@@ -66,7 +66,7 @@ async function submitQuestion() {
   translationBox.textContent = "";
 
   const maxPages = 13;
-  const baseUrl = `${window.location.origin}/exam/math/${currentExamId}_page`;
+  const url = `/exam/math/${currentExamId}page${i}.png`; // ✅ correct
   const imageMessages = [
     { type: "text", text: question }
   ];
