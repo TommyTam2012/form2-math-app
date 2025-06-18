@@ -84,22 +84,29 @@ async function submitQuestion() {
   }
 
   fetch("/api/analyze", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt: question, messages: imageMessages })
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ prompt: question, messages: imageMessages })
+})
+  .then(async res => {
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Server error: ${text}`);
+    }
+    return res.json();
   })
-    .then(res => res.json())
-    .then(data => {
-      const answer = data.response || "❌ 無法獲取英文回答。";
-      const translated = data.translated || "❌ 無法翻譯為中文。";
-      responseBox.textContent = answer;
-      translationBox.textContent = `🇨🇳 中文翻譯：${translated}`;
-      addToHistory(question, `${answer}<br><em>🇨🇳 中文翻譯：</em>${translated}`);
-    })
-    .catch(err => {
-      responseBox.textContent = "❌ 發生錯誤，請稍後重試。";
-      console.error("GPT error:", err);
-    });
+  .then(data => {
+    const answer = data.response || "❌ 無法獲取英文回答。";
+    const translated = data.translated || "❌ 無法翻譯為中文。";
+    responseBox.textContent = answer;
+    translationBox.textContent = `🇨🇳 中文翻譯：${translated}`;
+    addToHistory(question, `${answer}<br><em>🇨🇳 中文翻譯：</em>${translated}`);
+  })
+  .catch(err => {
+    responseBox.textContent = "❌ 發生錯誤，請稍後重試。";
+    console.error("GPT error:", err);
+  });
+
 
   questionInput.value = "";
 }
