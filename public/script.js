@@ -45,7 +45,7 @@ let currentExamId = "";
 
 function setExam(examId) {
   currentExamId = examId;
-  const pdfUrl = `/exam/IELTS/${examId}.pdf`;
+  const pdfUrl = `/exam/math/${examId}.pdf`;
   window.open(pdfUrl, "_blank");
   console.log(`📘 Exam set to ${examId}`);
 }
@@ -66,7 +66,7 @@ async function submitQuestion() {
   translationBox.textContent = "";
 
   const maxPages = 13;
-  const baseUrl = `${window.location.origin}/exam/IELTS/${currentExamId}_page`;
+  const baseUrl = `${window.location.origin}/exam/math/${currentExamId}_page`;
   const imageMessages = [
     { type: "text", text: instruction },
     { type: "text", text: question }
