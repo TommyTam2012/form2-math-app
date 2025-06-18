@@ -65,13 +65,10 @@ async function submitQuestion() {
   responseBox.textContent = "正在分析中，請稍候...";
   translationBox.textContent = "";
 
-  const imageMessages = [
-    { type: "text", text: question }
-  ];
-
+  const imageMessages = [{ type: "text", text: question }];
   let missingCount = 0;
   const maxMissing = 3;
-  const maxAttempts = 20;
+  const maxAttempts = 10;  // ⛔ Limit to first 10 pages only
 
   for (let i = 1; i <= maxAttempts; i++) {
     const url = `/exam/math/${currentExamId}page${i}.png`;
@@ -128,7 +125,7 @@ function addToHistory(question, answer) {
   historyList.prepend(li);
 }
 
-// ----------------- 🔊 TTS Engine Below -----------------
+// ----------------- 🔊 TTS Engine -----------------
 
 function detectLang(text) {
   return /[一-龥]/.test(text) ? "zh-CN" : "en-GB";
