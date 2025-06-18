@@ -19,6 +19,12 @@ export default async function handler(req, res) {
     const imageUrl = `${process.env.BASE_URL}/exam/math/${examId}page${page}.png`;
     const answerUrl = `${process.env.BASE_URL}/exam/math/${examId}answers.png`;
 
+    // ✅ Optional: Check if image exists before sending to GPT
+    const testImage = await fetch(imageUrl, { method: "HEAD" });
+    if (!testImage.ok) {
+      return res.status(404).json({ error: `Missing question image: ${imageUrl}` });
+    }
+
     const systemPrompt = `
 You are a Form 2 Mathematics tutor in Hong Kong.
 
@@ -33,22 +39,31 @@ Your job:
 4. If they match, explain why the official answer is correct using simple, step-by-step logic.
 5. If they differ, explain the correct method and identify the error in the official answer (if any).
 6. Use simple English suitable for a 13–14 year old student.
-    `.trim();
+`.trim();
+
+    const messages = [
+      { role: "system", content: systemPrompt },
+      {
+        role: "user",
+        content: `This is page ${page} of exam ${examId}. Please analyze the question shown.`
+      },
+      {
+        role: "user",
+        content: { type: "image_url", image_url: { url: imageUrl } }
+      },
+      {
+        role: "user",
+        content: `Official Answer: ${officialAnswer}`
+      },
+      {
+        role: "user",
+        content: { type: "image_url", image_url: { url: answerUrl } }
+      }
+    ];
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
-      messages: [
-        { role: "system", content: systemPrompt },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: `This is page ${page} of exam ${examId}. Please analyze the question shown.` },
-            { type: "image_url", image_url: { url: imageUrl } },
-            { type: "text", text: `Official Answer: ${officialAnswer}` },
-            { type: "image_url", image_url: { url: answerUrl } }
-          ]
-        }
-      ]
+      messages
     });
 
     const english = response.choices[0]?.message?.content?.trim() || "";
