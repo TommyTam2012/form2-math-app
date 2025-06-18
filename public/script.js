@@ -68,7 +68,6 @@ async function submitQuestion() {
   const maxPages = 13;
   const baseUrl = `${window.location.origin}/exam/math/${currentExamId}_page`;
   const imageMessages = [
-    { type: "text", text: instruction },
     { type: "text", text: question }
   ];
 
