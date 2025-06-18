@@ -1,0 +1,12 @@
+{
+  "name": "form2-math-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "node api/analyze.js"
+  },
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}
