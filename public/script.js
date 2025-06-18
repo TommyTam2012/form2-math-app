@@ -65,48 +65,59 @@ async function submitQuestion() {
   responseBox.textContent = "正在分析中，請稍候...";
   translationBox.textContent = "";
 
-  const maxPages = 13;
   const imageMessages = [
     { type: "text", text: question }
   ];
 
-  for (let i = 1; i <= maxPages; i++) {
+  let missingCount = 0;
+  const maxMissing = 3;
+  const maxAttempts = 20;
+
+  for (let i = 1; i <= maxAttempts; i++) {
     const url = `/exam/math/${currentExamId}page${i}.png`;
     try {
       const res = await fetch(url, { method: "HEAD" });
       if (res.ok) {
         imageMessages.push({ type: "image_url", image_url: { url } });
         console.log(`✅ Found: ${url}`);
+        missingCount = 0;
+      } else {
+        console.warn(`❌ Not found: ${url}`);
+        missingCount++;
       }
     } catch (err) {
       console.warn(`⚠️ Error checking: ${url}`, err);
+      missingCount++;
+    }
+    if (missingCount >= maxMissing) {
+      console.log("🛑 Stopping image loop after too many missing pages.");
+      break;
     }
   }
 
   fetch("/api/analyze", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ prompt: question, messages: imageMessages })
-})
-  .then(async res => {
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Server error: ${text}`);
-    }
-    return res.json();
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: question, messages: imageMessages })
   })
-  .then(data => {
-    const answer = data.response || "❌ 無法獲取英文回答。";
-    const translated = data.translated || "❌ 無法翻譯為中文。";
-    responseBox.textContent = answer;
-    translationBox.textContent = `🇨🇳 中文翻譯：${translated}`;
-    addToHistory(question, `${answer}<br><em>🇨🇳 中文翻譯：</em>${translated}`);
-  })
-  .catch(err => {
-    responseBox.textContent = "❌ 發生錯誤，請稍後重試。";
-    console.error("GPT error:", err);
-  });
-
+    .then(async res => {
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Server error: ${text}`);
+      }
+      return res.json();
+    })
+    .then(data => {
+      const answer = data.response || "❌ 無法獲取英文回答。";
+      const translated = data.translated || "❌ 無法翻譯為中文。";
+      responseBox.textContent = answer;
+      translationBox.textContent = `🇨🇳 中文翻譯：${translated}`;
+      addToHistory(question, `${answer}<br><em>🇨🇳 中文翻譯：</em>${translated}`);
+    })
+    .catch(err => {
+      responseBox.textContent = "❌ 發生錯誤，請稍後重試。";
+      console.error("GPT error:", err);
+    });
 
   questionInput.value = "";
 }
