@@ -1,5 +1,3 @@
-import { OpenAI } from "openai";
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -10,59 +8,28 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompt, examId } = req.body;
+    const { prompt, messages } = req.body;
 
-    if (!prompt || !examId) {
-      return res.status(400).json({ error: "Missing prompt or examId." });
+    if (!prompt || !Array.isArray(messages)) {
+      return res.status(400).json({ error: "Missing or invalid prompt/messages." });
     }
 
-    const baseUrl = `${req.headers.origin}/exam/math/`;
-    const imageMessages = [];
-
-    // Auto-detect all question pages
-    for (let i = 1; i <= 10; i++) {
-      const url = `${baseUrl}${examId}page${i}.png`;
-      try {
-        const head = await fetch(url, { method: 'HEAD' });
-        if (head.ok) {
-          imageMessages.push({ type: "image_url", image_url: { url } });
-        } else {
-          break;
-        }
-      } catch {
-        break;
-      }
-    }
-
-    // Add answer key last
-    imageMessages.push({
-      type: "image_url",
-      image_url: { url: `${baseUrl}${examId}answers.png` }
-    });
-
-    const fullPrompt = `
+    const systemPrompt = 
 You are a Form 2 Mathematics tutor in Hong Kong.
 
 You will be given:
 1. A student's math question (text or image)
-2. One or more exam pages containing math questions
-3. A final image containing the answer key (e.g. ${examId}answers.png)
+2. Your job is to solve it and explain your steps clearly.
 
-Your job is to:
-- Solve the question.
-- Use the final image only to check if your solution is correct.
-- Explain your reasoning in clear, step-by-step English suitable for a 13–14 year old.
-- If your answer differs from the key, explain why and what might have gone wrong.
-`.trim();
+Use simple English suitable for 13–14 year old students.
+Respond with friendly, clear explanations step by step.
+.trim();
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        { role: "system", content: fullPrompt },
-        { role: "user", content: [
-          { type: "text", text: prompt },
-          ...imageMessages
-        ]}
+        { role: "system", content: systemPrompt },
+        { role: "user", content: messages }
       ]
     });
 
