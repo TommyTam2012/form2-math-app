@@ -1,3 +1,5 @@
+import { OpenAI } from "openai";
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -14,7 +16,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing or invalid prompt/messages." });
     }
 
-    const systemPrompt = 
+    const systemPrompt = `
 You are a Form 2 Mathematics tutor in Hong Kong.
 
 You will be given:
@@ -23,13 +25,16 @@ You will be given:
 
 Use simple English suitable for 13–14 year old students.
 Respond with friendly, clear explanations step by step.
-.trim();
+`.trim();
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: messages }
+        {
+          role: "user",
+          content: messages // ✅ This is expected to be [{type: "text", text: "..."}, {type: "image_url", image_url: {...}}]
+        }
       ]
     });
 
