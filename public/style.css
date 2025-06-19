@@ -126,7 +126,7 @@ button:hover {
 /* ✅ Injected: School Header & Logo Styling */
 .school-logo {
   height: 80;
-  width: 100px;         /* 💥 force a larger display width */
+  width: 80px;         /* 💥 force a larger display width */
   image-rendering: auto;
   transform: scale(1.4); /* Extra visual boost */
 }
