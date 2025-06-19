@@ -26,6 +26,21 @@ function clearHistory() {
   console.log("🧹 History cleared");
 }
 
+function cleanLatexMarkdown(text) {
+  let cleaned = text
+    .replace(/\\\(/g, '')
+    .replace(/\\\)/g, '')
+    .replace(/\\times/g, '×')
+    .replace(/\\div/g, '÷')
+    .replace(/\*\*/g, '')
+    .replace(/#{1,6}/g, '')
+    .replace(/\\/g, '')
+    .trim();
+
+  cleaned = cleaned.replace(/(Answer:\s*)([^\n]+)/gi, '<strong>$1$2</strong>');
+  return cleaned;
+}
+
 async function submitQuestion() {
   const question = questionInput.value.trim();
   if (!question || !currentExamId) {
@@ -42,7 +57,7 @@ async function submitQuestion() {
   const maxAttempts = 10;
 
   for (let i = 1; i <= maxAttempts; i++) {
-    const url = `${window.location.origin}/exam/math/${currentExamId}page${i}.png`; // ✅ Full URL for GPT
+    const url = `${window.location.origin}/exam/math/${currentExamId}page${i}.png`;
     try {
       const res = await fetch(url, { method: "HEAD" });
       if (res.ok) {
@@ -78,9 +93,10 @@ async function submitQuestion() {
     .then(data => {
       const answer = data.response || "❌ 無法獲取英文回答。";
       const translated = data.translated || "❌ 無法翻譯為中文。";
-      responseBox.textContent = answer;
+      const cleanedAnswer = cleanLatexMarkdown(answer);
+      responseBox.innerHTML = cleanedAnswer;
       translationBox.textContent = `🇨🇳 中文翻譯：${translated}`;
-      addToHistory(question, `${answer}<br><em>🇨🇳 中文翻譯：</em>${translated}`);
+      addToHistory(question, `${cleanedAnswer}<br><em>🇨🇳 中文翻譯：</em>${translated}`);
     })
     .catch(err => {
       responseBox.textContent = "❌ 發生錯誤，請稍後重試。";
@@ -205,7 +221,7 @@ if (window.SpeechRecognition || window.webkitSpeechRecognition) {
         questionInput.value = finalTranscript;
         submitQuestion();
       } else {
-        console.log("⚠️ 没有检测到语音内容。");
+        console.log("⚠️ 没有检测到语音內容。");
       }
     }
   };
