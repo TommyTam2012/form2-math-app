@@ -79,10 +79,10 @@ async function submitQuestion() {
   }
 
   fetch("/api/analyze", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ prompt: question, messages: imageMessages })
-})
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: question, messages: imageMessages })
+  })
     .then(async res => {
       if (!res.ok) {
         const text = await res.text();
